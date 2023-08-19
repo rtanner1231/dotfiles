@@ -36,7 +36,7 @@ vim.opt.guifont = "monospace:h17"               -- the font used in graphical ne
 
 vim.opt.shortmess:append "c"
 
-vim.loader.enable()
+--vim.loader.enable()
 
 vim.cmd "set whichwrap+=<,>,[,],h,l"
 vim.cmd [[set iskeyword+=-]]
