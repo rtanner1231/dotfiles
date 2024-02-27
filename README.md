@@ -25,3 +25,4 @@ Other tools installed
 - [homebrew](https://docs.brew.sh/Homebrew-on-Linux) - Package manager
 - [meld](https://github.com/GNOME/meld) - Diff and merge tool
 - [gh](https://cli.github.com/) - Github CLI
+- [starship](https://starship.rs/) - Command prompt
