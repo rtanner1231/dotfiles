@@ -1,0 +1,39 @@
+format = "$directory $git_branch$git_status${custom.sdf}$character "
+
+[character]
+success_symbol = "[▶](bold green)" # normal prompt
+error_symbol = "[✗](bold red)" # used if previous command failed
+
+# Displays current directory.
+[directory]
+format = "[$path]($style)"
+style = "yellow"
+truncate_to_repo = true
+truncation_length = 3 # parent directories to show; default is 3
+
+# Displays current Git branch when in a directory of a Git repository.
+[git_branch]
+format = "[$symbol](green) [$branch]($style)"
+style = "italic green"
+symbol = ""
+
+# Displays status of Git repository when in a directory of a Git repository.
+[git_status]
+format = "[$all_status$ahead_behind]($style)"
+ahead = "[ $count ](#f2ac07)"
+behind = "[󰳛 $count ](#f2ac07)"
+deleted = "🗑 $count "
+diverged = " $count "
+stashed = "📦 $count "
+modified = "󰏪 $count "
+up_to_date="[󰗠 ](#07f2e7)"
+staged = '[ $count ](green)'
+renamed = " $count "
+untracked = "🤷 $count "
+style = "bold red"
+
+[custom.sdf]
+command="cat project.json | jq '.defaultAuthId' | tr -d '\"'"
+detect_files=['project.json']
+format='[$output]($style) '
+style='yellow'
