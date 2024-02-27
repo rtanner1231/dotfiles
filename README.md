@@ -24,3 +24,4 @@ Other tools installed
 - [fzf](https://github.com/junegunn/fzf) - Fuzzy finder
 - [homebrew](https://docs.brew.sh/Homebrew-on-Linux) - Package manager
 - [meld](https://github.com/GNOME/meld) - Diff and merge tool
+- [gh](https://cli.github.com/) - Github CLI
