@@ -1,72 +1,28 @@
 # dotfiles
-From article: https://www.atlassian.com/git/tutorials/dotfiles
 
-Summarized below in case article is removed:
+Uses [GNU Stow](https://www.gnu.org/software/stow/)
 
-## Starting from scratch
-### Initializing
-    git init --bare $HOME/.cfg
-    alias config='/usr/bin/git --git-dir=$HOME/.cfg/ --work-tree=$HOME'
-    config config --local status.showUntrackedFiles no
-    echo "alias config='/usr/bin/git --git-dir=$HOME/.cfg/ --work-tree=$HOME'" >> $HOME/.bashrc
+Walkthrough: https://www.youtube.com/watch?v=y6XCebnB9gs
 
-### Usage
-    config status
-    config add .vimrc
-    config commit -m "Add vimrc"
-    config add .bashrc
-    config commit -m "Add bashrc"
-    config push
+```shell
+apt install stow
+```
 
-##Installing on new system
+Clone into home folder.  Remove existing versions of tracked .dotfiles (.bashrc, .gitconfig, etc.).  In dotfiles folder run the below command. This will symlink all the files into their correct locations.
+```
+stow .
+```
 
-- Prior to the installation make sure you have committed the alias to your .bashrc or .zsh:
-
-      alias config='/usr/bin/git --git-dir=$HOME/.cfg/ --work-tree=$HOME'
-
-- And that your source repository ignores the folder where you'll clone it, so that you don't create weird recursion problems:
-
-      echo ".cfg" >> .gitignore
-
-- Now clone your dotfiles into a bare repository in a "dot" folder of your $HOME:
-
-      git clone --bare <git-repo-url> $HOME/.cfg
-
-- Define the alias in the current shell scope:
-
-      alias config='/usr/bin/git --git-dir=$HOME/.cfg/ --work-tree=$HOME'
-
-- Checkout the actual content from the bare repository to your $HOME:
-
-      config checkout
-
-- The step above might fail with a message like:
-
-      error: The following untracked working tree files would be overwritten by checkout:
-      .bashrc
-      .gitignore
-      Please move or remove them before you can switch branches.
-      Aborting
-
-This is because your $HOME folder might already have some stock configuration files which would be overwritten by Git. The solution is simple: back up the files if you care about them, remove them if you don't care. I provide you with a possible rough shortcut to move all the offending files automatically to a backup folder:
-
-      mkdir -p .config-backup && \
-      config checkout 2>&1 | egrep "\s+\." | awk {'print $1'} | \
-      xargs -I{} mv {} .config-backup/{}
-
-- Re-run the check out if you had problems:
-
-      config checkout
-
-- Set the flag showUntrackedFiles to no on this specific (local) repository:
-
-      config config --local status.showUntrackedFiles no
-
-- You're done, from now on you can now type config commands to add and update your dotfiles:
-
-      config status
-      config add .vimrc
-      config commit -m "Add vimrc"
-      config add .bashrc
-      config commit -m "Add bashrc"
-      config push
+Other tools installed
+- [lazygit](https://github.com/jesseduffield/lazygit?tab=readme-ov-file) - Git TUI
+- [Delta](https://github.com/dandavison/delta?tab=readme-ov-file) - Git diff pager
+- [JQ](https://jqlang.github.io/jq/) - JSON processing
+- [zoxide](https://github.com/ajeetdsouza/zoxide) - cd replacement
+- [eza](https://github.com/eza-community/eza) - ls replacement
+- [tmux](https://github.com/tmux/tmux/wiki) - Terminal Multiplexer
+- [neovim](https://neovim.io/) - Text editor
+- [fzf](https://github.com/junegunn/fzf) - Fuzzy finder
+- [homebrew](https://docs.brew.sh/Homebrew-on-Linux) - Package manager
+- [meld](https://github.com/GNOME/meld) - Diff and merge tool
+- [gh](https://cli.github.com/) - Github CLI
+- [starship](https://starship.rs/) - Command prompt
