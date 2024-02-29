@@ -130,11 +130,6 @@ export PATH="$PATH:$HOME/Development/flutter/bin"
 [ -f "/home/rtanner/.ghcup/env" ] && source "/home/rtanner/.ghcup/env" # ghcup-env
 alias config='/usr/bin/git --git-dir=/home/rtanner/.cfg/ --work-tree=/home/rtanner'
 
-export NS_TOKEN_SECRET=b2d921848eee9ee021fedc780e5dd43c15be67f4d0cb63f4dd016eb5ddae3883
-export NS_TOKEN=f217cee3e367263c20f0fbf74e50221e692e57fef71cbe5661db4550fd977365
-export NS_CONSUMER_KEY=8c56c53508b65d2969e371b9b944777bc8c1ffffd9cbbb2e1910dab88ea6e3a5
-export NS_CONSUMER_SECRET=0527a85eb56f97c80e8a6452d56272b3bf83231c41001e15eeef231de43bb6e3
-export NS_ACCOUNT=3626311_SB2
 export NVIMQueryKey=Adfsgh344564
 
 eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
