@@ -26,3 +26,5 @@ Other tools installed
 - [meld](https://github.com/GNOME/meld) - Diff and merge tool
 - [gh](https://cli.github.com/) - Github CLI
 - [starship](https://starship.rs/) - Command prompt
+- [ripgrep](https://github.com/BurntSushi/ripgrep) - Directory search
+- [asciiquarium](https://github.com/cmatsuoka/asciiquarium) - Aquarium
