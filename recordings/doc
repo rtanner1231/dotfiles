@@ -1,0 +1,5 @@
+Record with:
+asciinema rec --command "nvim demo.js" d.cast
+
+Convert with:
+agg d.cast d.gif
