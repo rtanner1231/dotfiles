@@ -7,7 +7,7 @@
         mt = !git mergetool -t meld
 [user]
         name = Richard Tanner
-        email = rtanner@alphabroder.com
+        email = rtanner@myron.com
 [credential]
 	helper = store
 [core]
