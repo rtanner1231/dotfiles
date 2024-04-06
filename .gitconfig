@@ -8,8 +8,6 @@
 [user]
         name = Richard Tanner
         email = rtanner@myron.com
-[credential]
-	helper = store
 [core]
     pager = delta
 
@@ -27,3 +25,9 @@
     colorMoved = default
 [mergetool]
 	keepBackup = false
+[credential "https://github.com"]
+	helper = 
+	helper = !/usr/bin/gh auth git-credential
+[credential "https://gist.github.com"]
+	helper = 
+	helper = !/usr/bin/gh auth git-credential
