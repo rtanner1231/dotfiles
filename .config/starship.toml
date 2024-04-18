@@ -1,4 +1,4 @@
-format = "$directory $git_branch$git_status${custom.sdf}$character "
+format = "$shell$directory $git_branch$git_status${custom.sdf}$character "
 
 [character]
 success_symbol = "[▶](bold green)" # normal prompt
@@ -31,6 +31,13 @@ staged = '[ $count ](green)'
 renamed = " $count "
 untracked = "🤷 $count "
 style = "bold red"
+
+[shell]
+disabled=false
+fish_indicator=""
+bash_indicator="󱆃"
+zsh_indicator="󰬇"
+style="green"
 
 [custom.sdf]
 command="cat project.json | jq '.defaultAuthId' | tr -d '\"'"
