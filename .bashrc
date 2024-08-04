@@ -119,7 +119,7 @@ fi
 #eval "$(oh-my-posh init bash --config https://raw.githubusercontent.com/JanDeDobbeleer/oh-my-posh/main/themes/marcduiker.omp.json)"
  #eval "$(oh-my-posh init bash --config ./marcduiker.omp.json)"
 
-export NVM_DIR="$HOME/.nvm"
+export NVM_DIR="/usr/share/nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
 [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
 
@@ -132,7 +132,7 @@ alias config='/usr/bin/git --git-dir=/home/rtanner/.cfg/ --work-tree=/home/rtann
 
 export NVIMQueryKey=Adfsgh344564
 
-eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+#eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
 eval "$(zoxide init bash)"
 eval "$(starship init bash)"
-. "$HOME/.cargo/env"
+# . "$HOME/.cargo/env"
