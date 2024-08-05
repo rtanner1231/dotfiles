@@ -131,6 +131,9 @@ return {
 						vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled({ bufnr = event.buf }))
 					end, "[T]oggle Inlay [H]ints")
 				end
+				vim.lsp.handlers["textDocument/signatureHelp"] = vim.lsp.with(vim.lsp.handlers.signature_help, {
+					border = "rounded",
+				})
 			end,
 		})
 
