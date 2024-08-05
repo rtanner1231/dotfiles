@@ -36,13 +36,13 @@ exec --no-startup-id /usr/libexec/csd-xsettings
 
 # set monitor scaling
 exec --no-startup-id xrandr --auto
-exec --no-startup-id xrandr --output eDP-2 --scale 0.5x0.5 --left-of HDMI-1-1
+exec --no-startup-id xrandr --output eDP-1 --scale 0.5x0.5 --left-of HDMI-1-0
 
-exec --no-startup-id feh --bg-scale ~/.config/backgrounds/bgwater.jpg
+exec --no-startup-id feh --bg-scale ~/.config/backgrounds/bgforest.jpg
 
 # polybar
-# exec_always killall polybar
-exec --no-startup-id ~/.config/polybar/launch_polybar.sh
+exec_always killall polybar
+exec_always --no-startup-id ~/.config/polybar/launch_polybar.sh
 
 # Use pactl to adjust volume in PulseAudio.
 set $refresh_i3status killall -SIGUSR1 i3status
@@ -222,6 +222,21 @@ mode "resize" {
 bindsym $mod+r mode "resize"
 
 set $mode_launcher = [f]irefox [t]hunderbird [l]ogseq
+
+set $mode_system System (l) lock, (e) logout, (s) suspend, (h) hibernate, (r) reboot, (Shift+s) shutdown
+mode "$mode_system" {
+    bindsym l exec --no-startup-id i3exit lock, mode "default"
+    bindsym e exec --no-startup-id i3exit logout, mode "default"
+    bindsym s exec --no-startup-id i3exit suspend, mode "default"
+    bindsym h exec --no-startup-id i3exit hibernate, mode "default"
+    bindsym r exec --no-startup-id i3exit reboot, mode "default"
+    bindsym Shift+s exec --no-startup-id i3exit shutdown, mode "default"
+
+    # back to normal: Enter or Escape
+    bindsym Return mode "default"
+    bindsym Escape mode "default"
+}
+bindsym $mod+Pause mode "$mode_system"
 
 # bindsym $mod+o mode "$mode_launcher"
 #
