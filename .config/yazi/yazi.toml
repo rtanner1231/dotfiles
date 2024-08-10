@@ -84,7 +84,14 @@ image_bound      = [ 0, 0 ]
 suppress_preload = false
 
 [plugin]
+prepend_previewers = [
+    { name = "*.csv", run = "bat" },
+    { name = "*.md", run = "bat" },
+    { name="*.toml", run="bat" },
+    { name="*.js", run="bat" },
+    { name="*.ts", run="bat" }
 
+]
 fetchers = [
 	# Mimetype
 	{ id = "mime", name = "*", run = "mime", if = "!mime", prio = "high" },
