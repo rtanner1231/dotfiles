@@ -37,6 +37,7 @@ exec --no-startup-id /usr/libexec/csd-xsettings
 # set monitor scaling
 exec --no-startup-id xrandr --auto
 exec --no-startup-id xrandr --output eDP-1 --scale 0.5x0.5 --left-of HDMI-1-0
+exec --no-startup-id xrandr --output HDMI-1-0 --pos 1920x0
 
 exec --no-startup-id feh --bg-scale ~/.config/backgrounds/bgforest.jpg
 
