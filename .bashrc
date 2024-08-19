@@ -125,14 +125,15 @@ export NVM_DIR="$HOME/.nvm"
 
 #export PATH="$HOME/.yarn/bin:$HOME/.config/yarn/global/node_modules/.bin:$PATH"
 export PATH="/home/rtanner/.nvm/versions/node/v16.15.0/bin:$PATH"
-export PATH="$PATH:$HOME/Development/flutter/bin"
+
+# export PATH="$PATH:$HOME/Development/flutter/bin"
 
 [ -f "/home/rtanner/.ghcup/env" ] && source "/home/rtanner/.ghcup/env" # ghcup-env
 alias config='/usr/bin/git --git-dir=/home/rtanner/.cfg/ --work-tree=/home/rtanner'
 
 export NVIMQueryKey=Adfsgh344564
 
-eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+# eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
 eval "$(zoxide init bash)"
 eval "$(starship init bash)"
-. "$HOME/.cargo/env"
+# . "$HOME/.cargo/env"
