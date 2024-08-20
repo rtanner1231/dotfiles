@@ -30,4 +30,5 @@ return {
 			completion = true,
 		},
 	},
+	ft = { "javascript", "typescript" },
 }
