@@ -27,3 +27,4 @@ require("lazy").setup({ { import = "user/plugins" }, { import = "user/plugins.ls
 require("user.options")
 require("user.keymaps")
 require("user.autocmds")
+require("user.highlight")
