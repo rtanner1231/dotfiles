@@ -40,3 +40,5 @@ setK("n", "<leader>vv", "<cmd>vsplit<cr>", { desc = "vertical Split" })
 setK("n", "<leader>vh", "<cmd>split<cr>", { desc = "Horizontal Split" })
 setK("n", "<leader>vc", "<C-w>c", { desc = "Close current split" })
 setK("n", "<leader>vo", "<cmd>on<cr>", { desc = "Close other splits" })
+
+setK("n", "<BS>", "^", { noremap = true })
