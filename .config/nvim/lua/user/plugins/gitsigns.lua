@@ -49,4 +49,9 @@ return { -- Adds git related signs to the gutter, as well as utilities for manag
 		-- 	enable = false,
 		-- },
 	},
+	keys = {
+		{ "<leader>=", "<cmd>Gitsigns preview_hunk<cr>", desc = "Gitsigns preview hunk" },
+		{ "<leader>]", "<cmd>Gitsigns next_hunk<cr>", desc = "Gitsigns next hunk" },
+		{ "<leader>[", "<cmd>Gitsigns prev_hunk<cr>", desc = "Gitsigns previous hunk" },
+	},
 }
