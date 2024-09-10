@@ -4,6 +4,8 @@ end
 
 export NVIMQueryKey=Adfsgh344564
 
+fish_vi_key_bindings
+
 set -gx $EDITOR "nvim"
 set fzf_dir_opts --bind "ctrl-o:execute($EDITOR {} &> /dev/tty)"
 
