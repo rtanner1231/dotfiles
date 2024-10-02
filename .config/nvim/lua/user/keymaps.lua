@@ -42,3 +42,8 @@ setK("n", "<leader>vc", "<C-w>c", { desc = "Close current split" })
 setK("n", "<leader>vo", "<cmd>on<cr>", { desc = "Close other splits" })
 
 setK("n", "<BS>", "^", { noremap = true })
+
+--gitsigns
+setK("n", "<leader>=", "<cmd>Gitsigns preview_hunk<cr>", { desc = "Gitsigns preview hunk" })
+setK("n", "<leader>]", "<cmd>Gitsigns next_hunk<cr>", { desc = "Gitsigns next hunk" })
+setK("n", "<leader>[", "<cmd>Gitsigns prev_hunk<cr>", { desc = "Gitsigns previous hunk" })
