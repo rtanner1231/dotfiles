@@ -9,4 +9,5 @@ return {
 			enable_chat = true,
 		})
 	end,
+	enabled = false,
 }
