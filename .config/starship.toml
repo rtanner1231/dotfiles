@@ -37,6 +37,7 @@ disabled=false
 fish_indicator=""
 bash_indicator="󱆃"
 zsh_indicator="󰬇"
+nu_indicator=""
 style="green"
 
 [custom.sdf]
