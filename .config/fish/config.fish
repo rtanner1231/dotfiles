@@ -12,3 +12,7 @@ set fzf_dir_opts --bind "ctrl-o:execute($EDITOR {} &> /dev/tty)"
 starship init fish | source
 zoxide init fish | source
 fzf --fish | source
+
+# bun
+set --export BUN_INSTALL "$HOME/.bun"
+set --export PATH $BUN_INSTALL/bin $PATH

@@ -3,7 +3,7 @@ return {
 	version = "*",
 	opts = {
 		size = 20,
-		open_mapping = [[<c-\>]],
+		--open_mapping = [[<c-\>]],
 		hide_numbers = true,
 		shade_filetypes = {},
 		shade_terminals = true,
@@ -47,6 +47,6 @@ return {
 		end
 
 		-- vim.keymap.set("n", "<leader>gl", "<cmd>lua _Lazygit_toggle()<CR>", { desc = "Open Lazygit" })
-		vim.keymap.set("n", "<leader>gl", lazygit_toggle, { desc = "Open Lazygit" })
+		--vim.keymap.set("n", "<leader>gl", lazygit_toggle, { desc = "Open Lazygit" })
 	end,
 }
