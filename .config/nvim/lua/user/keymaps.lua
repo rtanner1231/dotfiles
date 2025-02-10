@@ -1,3 +1,5 @@
+local netsuitescripts = require("user.scripts.netsuitescripts")
+
 local setK = vim.keymap.set
 
 setK("n", "<Esc>", "<cmd>nohlsearch<CR>")
@@ -47,3 +49,10 @@ setK("n", "<BS>", "^", { noremap = true })
 setK("n", "<leader>=", "<cmd>Gitsigns preview_hunk<cr>", { desc = "Gitsigns preview hunk" })
 setK("n", "<leader>]", "<cmd>Gitsigns next_hunk<cr>", { desc = "Gitsigns next hunk" })
 setK("n", "<leader>[", "<cmd>Gitsigns prev_hunk<cr>", { desc = "Gitsigns previous hunk" })
+
+vim.api.nvim_set_keymap("n", "<leader>zz", "", {
+	desc = "Netsuite Console",
+	callback = function()
+		netsuitescripts.create_popup()
+	end,
+})
