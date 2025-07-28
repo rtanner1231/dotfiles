@@ -21,12 +21,13 @@ return {
 				return require("codecompanion.adapters").extend("ollama", {
 					name = "deepseek_coder",
 					env = {
-						url = "http://192.168.1.16:11434",
+						url = "http://192.168.1.2:11434",
 					},
 					schema = {
 						model = {
 							--default = "deepseek-coder-v2:16b",
-							default = "qwen2.5-coder:32b",
+							--default = "qwen2.5-coder:32b",
+							default = "gemma3:27b",
 						},
 					},
 				})
