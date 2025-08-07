@@ -56,3 +56,6 @@ vim.api.nvim_set_keymap("n", "<leader>zz", "", {
 		netsuitescripts.create_popup()
 	end,
 })
+
+--navbuddy
+setK("n", "<leader>nn", "<cmd>Navbuddy<cr>", { desc = "Navbuddy" })

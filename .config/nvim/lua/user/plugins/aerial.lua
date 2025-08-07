@@ -1,5 +1,6 @@
 return {
 	"stevearc/aerial.nvim",
+	enabled = false,
 	opts = {
 		close_automatic_events = { "unfocus" },
 		autojump = true,
