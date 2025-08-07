@@ -45,7 +45,7 @@ function M.create_popup()
 	local mod_contents = ""
 
 	-- Set content of the popup buffer
-	local content = { string.format('require(["%s"],(mod)=>{', modPath), mod_contents, "})" }
+	local content = { "var mod", string.format('require(["%s"],(m)=>{', modPath), "mod=m", "})" }
 	--vim.api.nvim_buf_set_lines(bufnr_popup, 0, -1, false, content)
 
 	-- Create a window for the popup buffer using plenary.popup.create
