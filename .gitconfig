@@ -10,6 +10,7 @@
         email = rtanner@myron.com
 [core]
     pager = delta
+	editor = nvim
 
 [interactive]
     diffFilter = delta --color-only
