@@ -217,39 +217,62 @@ return {
 			},
 		}
 
-		-- Ensure the servers and tools above are installed
-		--  To check the current status of installed tools and/or manually install
-		--  other tools, you can run
-		--    :Mason
-		--
-		--  You can press `g?` for help in this menu.
-		require("mason").setup()
+		local function is_nixos()
+			-- A reliable way to check for NixOS is the presence of '/etc/nixos'
+			return vim.fn.isdirectory("/etc/nixos") == 1
+		end
 
-		-- You can add other tools here that you want Mason to install
-		-- for you, so that they are available from within Neovim.
-		local ensure_installed = vim.tbl_keys(servers or {})
-		vim.list_extend(ensure_installed, {
-			"prettier", -- prettier formatter
-			"stylua", -- lua formatter
-			"eslint_d", -- ts/js linter
-		})
-		require("mason-tool-installer").setup({ ensure_installed = ensure_installed })
+		if is_nixos() then
+			-- **NixOS Path**: LSPs are installed via home-manager and are in the PATH.
+			-- We will configure lspconfig directly and skip Mason for installation.
 
-		require("mason-lspconfig").setup({
-			handlers = {
-				function(server_name)
-					if server_name == "tsserver" then
-						server_name = "ts_ls"
-					end
+			for server_name, server_config in pairs(servers) do
+				if server_name == "ts_ls" then
+					server_name = "tsserver"
+				end
+				-- Combine the global capabilities with any server-specific settings
+				local final_config = vim.tbl_deep_extend("force", {
+					capabilities = capabilities,
+				}, server_config or {})
+				require("lspconfig")[server_name].setup(final_config)
+			end
+		else
+			-- Ensure the servers and tools above are installed
+			--  To check the current status of installed tools and/or manually install
+			--  other tools, you can run
+			--    :Mason
+			--
+			--  You can press `g?` for help in this menu.
+			require("mason").setup()
 
-					local server = servers[server_name] or {}
-					-- This handles overriding only values explicitly passed
-					-- by the server configuration above. Useful when disabling
-					-- certain features of an LSP (for example, turning off formatting for tsserver)
-					server.capabilities = vim.tbl_deep_extend("force", {}, capabilities, server.capabilities or {})
-					require("lspconfig")[server_name].setup(server)
-				end,
-			},
-		})
+			-- You can add other tools here that you want Mason to install
+			-- for you, so that they are available from within Neovim.
+			local ensure_installed = vim.tbl_keys(servers or {})
+			vim.list_extend(ensure_installed, {
+				"prettier", -- prettier formatter
+				"stylua", -- lua formatter
+				"eslint_d", -- ts/js linter
+			})
+			require("mason-tool-installer").setup({ ensure_installed = ensure_installed })
+
+			require("mason-lspconfig").setup({
+				handlers = {
+					function(server_name)
+						print("server name pre " .. server_name)
+						if server_name == "tsserver" then
+							server_name = "ts_ls"
+						end
+						print("server name post " .. server_name)
+
+						local server = servers[server_name] or {}
+						-- This handles overriding only values explicitly passed
+						-- by the server configuration above. Useful when disabling
+						-- certain features of an LSP (for example, turning off formatting for tsserver)
+						server.capabilities = vim.tbl_deep_extend("force", {}, capabilities, server.capabilities or {})
+						require("lspconfig")[server_name].setup(server)
+					end,
+				},
+			})
+		end
 	end,
 }
