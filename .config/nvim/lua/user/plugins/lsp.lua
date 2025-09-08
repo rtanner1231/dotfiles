@@ -227,9 +227,6 @@ return {
 			-- We will configure lspconfig directly and skip Mason for installation.
 
 			for server_name, server_config in pairs(servers) do
-				if server_name == "ts_ls" then
-					server_name = "tsserver"
-				end
 				-- Combine the global capabilities with any server-specific settings
 				local final_config = vim.tbl_deep_extend("force", {
 					capabilities = capabilities,
