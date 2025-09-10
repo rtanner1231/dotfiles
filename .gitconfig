@@ -28,6 +28,9 @@
 	keepBackup = false
 [credential "https://github.com"]
 	helper = 
+	helper = !/etc/profiles/per-user/rick/bin/gh auth git-credential
+[credential "https://github.com"]
+	helper = 
 	helper = !/usr/bin/gh auth git-credential
 [credential "https://gist.github.com"]
 	helper = 
