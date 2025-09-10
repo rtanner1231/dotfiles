@@ -173,6 +173,7 @@ return {
 			-- tsserver = {},
 			--
 
+			nil_ls = {},
 			lua_ls = {
 				-- cmd = {...},
 				-- filetypes = { ...},
