@@ -59,3 +59,5 @@ vim.api.nvim_set_keymap("n", "<leader>zz", "", {
 
 --navbuddy
 setK("n", "<leader>nn", "<cmd>Navbuddy<cr>", { desc = "Navbuddy" })
+
+setK("n", "<leader>gb", "<cmd>Gitsigns blame<cr>",{desc="Git Blame"})
