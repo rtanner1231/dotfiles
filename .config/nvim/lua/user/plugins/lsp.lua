@@ -233,7 +233,10 @@ return {
 				local final_config = vim.tbl_deep_extend("force", {
 					capabilities = capabilities,
 				}, server_config or {})
-				require("lspconfig")[server_name].setup(final_config)
+				--require("lspconfig")[server_name].setup(final_config)
+                vim.lsp.config(server_name, final_config)
+                vim.lsp.enable(server_name)
+                
 			end
 		else
 			-- Ensure the servers and tools above are installed
