@@ -151,6 +151,23 @@ return {
 			lineFoldingOnly = true,
 		}
 
+        local vue_plugin_path = ""
+        local vue_bin = vim.fn.exepath("vue-language-server")
+        if vue_bin ~= "" then
+            -- Resolve the symlink to the actual Nix store path
+            local real_path = vim.uv.fs_realpath(vue_bin)
+            if real_path then
+                -- 1. Get the root of the package (remove /bin/vue-language-server)
+                local package_root = real_path:match("(.*)/bin/")
+
+                -- 2. Construct the path based on your specific tree output
+                -- Target: /nix/store/.../lib/packages/typescript-plugin
+                if package_root then
+                    vue_plugin_path = package_root .. "/lib/packages/typescript-plugin"
+                end
+            end
+        end
+
 		-- Enable the following language servers
 		--  Feel free to add/remove any LSPs that you want here. They will automatically be installed.
 		--
@@ -174,6 +191,7 @@ return {
 			-- tsserver = {},
 			--
 
+            volar={},
 			nil_ls = {},
 			lua_ls = {
 				-- cmd = {...},
@@ -190,6 +208,16 @@ return {
 				},
 			},
 			ts_ls = {
+                filetypes = { "typescript", "javascript", "javascriptreact", "typescriptreact", "vue" },
+				init_options = {
+					plugins = {
+						{
+							name = "@vue/typescript-plugin",
+							location = vue_plugin_path,
+							languages = { "vue" },
+						},
+					},
+				},
 				settings = {
 					typescript = {
 						inlayHints = {
