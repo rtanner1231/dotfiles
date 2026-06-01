@@ -190,7 +190,11 @@ return {
             -- But for many setups, the LSP (`tsserver`) will work just fine
             -- tsserver = {},
             --
-
+            apex_ls = {
+                cmd = { "apex-language-server" },
+                filetypes = { "apex" },
+                root_dir = require('lspconfig').util.root_pattern("sfdx-project.json"),
+            },
             volar = {},
             nil_ls = {},
             lua_ls = {
@@ -253,18 +257,46 @@ return {
         end
 
         if is_nixos() then
-            -- **NixOS Path**: LSPs are installed via home-manager and are in the PATH.
-            -- We will configure lspconfig directly and skip Mason for installation.
-
+            -- 1. Register the configurations
             for server_name, server_config in pairs(servers) do
-                -- Combine the global capabilities with any server-specific settings
                 local final_config = vim.tbl_deep_extend("force", {
                     capabilities = capabilities,
                 }, server_config or {})
-                --require("lspconfig")[server_name].setup(final_config)
+
                 vim.lsp.config(server_name, final_config)
-                vim.lsp.enable(server_name)
+                if server_name ~= 'apex_ls' then
+                    vim.lsp.enable(server_name)
+                end
             end
+
+            -- 2. Create the Trigger (The missing piece)
+            vim.api.nvim_create_autocmd('FileType', {
+                pattern = 'apex',
+                callback = function(args)
+                    -- This actually launches the server for the buffer
+                    vim.lsp.start({
+                        name = 'apex_ls',
+                        cmd = servers.apex_ls.cmd,
+                        root_dir = servers.apex_ls.root_dir(args.file)
+                    })
+                end,
+            })
+            -- (Note: You'd need a loop to do this generic for all servers)
+
+            -- if is_nixos() then
+            --     -- **NixOS Path**: LSPs are installed via home-manager and are in the PATH.
+            --     -- We will configure lspconfig directly and skip Mason for installation.
+            --
+            --     for server_name, server_config in pairs(servers) do
+            --         -- Combine the global capabilities with any server-specific settings
+            --         local final_config = vim.tbl_deep_extend("force", {
+            --             capabilities = capabilities,
+            --         }, server_config or {})
+            --
+            --         -- require("lspconfig")[server_name].setup(final_config)
+            --         vim.lsp.config(server_name, final_config)
+            --         vim.lsp.enable(server_name)
+            --     end
         else
             -- Ensure the servers and tools above are installed
             --  To check the current status of installed tools and/or manually install
