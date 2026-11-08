@@ -13,8 +13,14 @@ setK("n", "<C-Right>", ":vertical resize +2<CR>", { desc = "increase width" })
 -- Navigate buffers
 setK("n", "<S-l>", ":bnext<CR>", { desc = "Next Buffer" })
 setK("n", "<S-h>", ":bprevious<CR>", { desc = "Previous Buffer" })
--- Close current buffer
-setK("n", "<leader>b", ":bd<CR>", { desc = "Close Buffer" })
+-- Close current buffer without closing window split
+setK("n", "<leader>b", function()
+	if _G.Snacks then
+		Snacks.bufdelete()
+	else
+		vim.cmd("bd")
+	end
+end, { desc = "Close Buffer" })
 
 setK("i", "jk", "<ESC>", { desc = "Go to Normal Mode" })
 
@@ -35,7 +41,7 @@ setK("x", "<A-k>", ":move '<-2<CR>gv-gv")
 -- setK("n", "<C-j>", "<C-w><C-j>", { desc = "Move focus to the lower window" })
 -- setK("n", "<C-k>", "<C-w><C-k>", { desc = "Move focus to the upper window" })
 
-setK("n", "<leader>xx", ":source %<cr>", { desc = "Run current file" })
+setK("n", "<leader>xs", ":source %<cr>", { desc = "Run current file" })
 
 --splits
 setK("n", "<leader>vv", "<cmd>vsplit<cr>", { desc = "vertical Split" })

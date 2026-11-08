@@ -40,7 +40,7 @@ return {
 
 		local filename = {
 			"filename",
-			icons_enabled = "false",
+			icons_enabled = false,
 			icon = nil,
 		}
 
@@ -66,7 +66,7 @@ return {
 		end
 
 		local spaces = function()
-			return "spaces: " .. vim.api.nvim_buf_get_option(0, "shiftwidth")
+			return "spaces: " .. vim.bo[0].shiftwidth
 		end
 
 		local read_file = function(path)

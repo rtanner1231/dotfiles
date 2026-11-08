@@ -2,7 +2,7 @@ return {
     "rtanner1231/suiteqltools.nvim",
     dev = true,
     keys = {
-        { "<leader>ss", ":SuiteQL FormatQuery<cr>",              desc = "NeoTree reveal" },
+        { "<leader>ss", ":SuiteQL FormatQuery<cr>",              desc = "Format SuiteQL query" },
         { "<leader>sa", ":SuiteQL FormatFile<cr>",               desc = "Format all SuiteQL in file" },
         { "<leader>se", ":SuiteQL ToggleEditor<cr>",             desc = "Toggle SuiteQL editor" },
         { "<leader>sw", ":SuiteQL EditQuery<cr>",                desc = "Edit the query under the cursor" },

@@ -1,15 +1,19 @@
 return {
 	"L3MON4D3/LuaSnip",
 	-- follow latest release.
-	version = "v2.*", -- Replace <CurrentMajor> by the latest released major (first number of latest release)
-	-- install jsregexp (optional!).
-	build = "make install_jsregexp",
+	version = "v2.*",
+	-- install jsregexp when make & a C compiler are available (on NixOS, extraLuaPackages provides jsregexp)
+	build = (function()
+		if vim.fn.has("win32") == 1 or vim.fn.executable("make") == 0 or vim.fn.executable("cc") == 0 then
+			return
+		end
+		return "make install_jsregexp"
+	end)(),
 	config = function()
 		local ls = require("luasnip")
-		local types = require("luasnip.util.types")
 		local sc = require("luasnip.extras.select_choice")
 
-		print("in config")
+		ls.config.setup({})
 
 		vim.keymap.set({ "i", "s" }, "<c-j>", function()
 			if ls.expand_or_jumpable(-1) then

@@ -5,6 +5,8 @@ return {
 	---@type snacks.Config
 	opts = {
 		bigfile = { enabled = true },
+		input = { enabled = true },
+		picker = { enabled = true },
 		notifier = {
 			enabled = true,
 			timeout = 3000,

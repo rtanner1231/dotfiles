@@ -2,7 +2,7 @@ return {
 	"rtanner1231/sdftools.nvim",
 	dev = true,
 	keys = {
-		{ "<leader>ss", ":SuiteQL FormatQuery<cr>", desc = "NeoTree reveal" },
+		{ "<leader>ss", ":SuiteQL FormatQuery<cr>", desc = "Format SuiteQL query" },
 		{ "<leader>dp", ":SDF Deploy<cr>", desc = "Run suitecloud deploy" },
 		{ "<leader>dc", ":SDF SelectAccount<cr>", desc = "Select SDF Account" },
 		{ "<leader>dl", ":SDF DeployCurrentFolder<cr>", desc = "Deploy all files in current file's directory" },

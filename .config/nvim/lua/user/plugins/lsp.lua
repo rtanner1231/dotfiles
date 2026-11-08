@@ -1,339 +1,215 @@
+local function is_nixos()
+	return vim.fn.isdirectory("/etc/nixos") == 1
+end
+
 return {
-    -- Main LSP Configuration
-    "neovim/nvim-lspconfig",
-    dependencies = {
-        -- Automatically install LSPs and related tools to stdpath for Neovim
-        "williamboman/mason.nvim", -- NOTE: Must be loaded before dependants
-        "williamboman/mason-lspconfig.nvim",
-        "WhoIsSethDaniel/mason-tool-installer.nvim",
+	-- Main LSP Configuration
+	"neovim/nvim-lspconfig",
+	dependencies = {
+		-- Automatically install LSPs and related tools to stdpath for Neovim on non-NixOS systems
+		{ "williamboman/mason.nvim", cond = not is_nixos() },
+		{ "williamboman/mason-lspconfig.nvim", cond = not is_nixos() },
+		{ "WhoIsSethDaniel/mason-tool-installer.nvim", cond = not is_nixos() },
 
-        -- Useful status updates for LSP.
-        -- NOTE: `opts = {}` is the same as calling `require('fidget').setup({})`
-        { "j-hui/fidget.nvim", opts = {} },
+		-- Useful status updates for LSP
+		{ "j-hui/fidget.nvim", opts = {} },
 
-        -- Allows extra capabilities provided by nvim-cmp
-        "hrsh7th/cmp-nvim-lsp",
-    },
-    config = function()
-        -- Brief aside: **What is LSP?**
-        --
-        -- LSP is an initialism you've probably heard, but might not understand what it is.
-        --
-        -- LSP stands for Language Server Protocol. It's a protocol that helps editors
-        -- and language tooling communicate in a standardized fashion.
-        --
-        -- In general, you have a "server" which is some tool built to understand a particular
-        -- language (such as `gopls`, `lua_ls`, `rust_analyzer`, etc.). These Language Servers
-        -- (sometimes called LSP servers, but that's kind of like ATM Machine) are standalone
-        -- processes that communicate with some "client" - in this case, Neovim!
-        --
-        -- LSP provides Neovim with features like:
-        --  - Go to definition
-        --  - Find references
-        --  - Autocompletion
-        --  - Symbol Search
-        --  - and more!
-        --
-        -- Thus, Language Servers are external tools that must be installed separately from
-        -- Neovim. This is where `mason` and related plugins come into play.
-        --
-        -- If you're wondering about lsp vs treesitter, you can check out the wonderfully
-        -- and elegantly composed help section, `:help lsp-vs-treesitter`
+		-- Allows extra capabilities provided by nvim-cmp
+		"hrsh7th/cmp-nvim-lsp",
+	},
+	config = function()
+		-- Configure diagnostics UI (virtual_text disabled because tiny-inline-diagnostic.nvim is used)
+		vim.diagnostic.config({
+			virtual_text = false,
+			severity_sort = true,
+			float = {
+				border = "rounded",
+				source = "if_many",
+			},
+		})
 
-        --  This function gets run when an LSP attaches to a particular buffer.
-        --    That is to say, every time a new file is opened that is associated with
-        --    an lsp (for example, opening `main.rs` is associated with `rust_analyzer`) this
-        --    function will be executed to configure the current buffer
+		vim.api.nvim_create_autocmd("LspAttach", {
+			group = vim.api.nvim_create_augroup("kickstart-lsp-attach", { clear = true }),
+			callback = function(event)
+				local map = function(keys, func, desc, mode)
+					mode = mode or "n"
+					vim.keymap.set(mode, keys, func, { buffer = event.buf, desc = "LSP: " .. desc })
+				end
 
-        vim.api.nvim_create_autocmd("LspAttach", {
-            group = vim.api.nvim_create_augroup("kickstart-lsp-attach", { clear = true }),
-            callback = function(event)
-                -- NOTE: Remember that Lua is a real programming language, and as such it is possible
-                -- to define small helper and utility functions so you don't have to repeat yourself.
-                --
-                -- In this case, we create a function that lets us more easily define mappings specific
-                -- for LSP related items. It sets the mode, buffer and description for us each time.
-                local map = function(keys, func, desc)
-                    vim.keymap.set("n", keys, func, { buffer = event.buf, desc = "LSP: " .. desc })
-                end
+				-- Telescope LSP pickers
+				local builtin = require("telescope.builtin")
+				map("gd", builtin.lsp_definitions, "[G]oto [D]efinition")
+				map("gr", builtin.lsp_references, "[G]oto [R]eferences")
+				map("gI", builtin.lsp_implementations, "[G]oto [I]mplementation")
+				map("<leader>D", builtin.lsp_type_definitions, "Type [D]efinition")
+				map("<leader>ds", builtin.lsp_document_symbols, "[D]ocument [S]ymbols")
+				map("<leader>ws", builtin.lsp_dynamic_workspace_symbols, "[W]orkspace [S]ymbols")
 
-                -- Jump to the definition of the word under your cursor.
-                --  This is where a variable was first declared, or where a function is defined, etc.
-                --  To jump back, press <C-t>.
-                map("gd", require("telescope.builtin").lsp_definitions, "[G]oto [D]efinition")
+				-- Core LSP actions
+				map("<leader>rn", vim.lsp.buf.rename, "[R]e[n]ame")
+				map("<leader>ca", vim.lsp.buf.code_action, "[C]ode [A]ction", { "n", "x" })
+				map("gD", vim.lsp.buf.declaration, "[G]oto [D]eclaration")
+				map("gl", vim.diagnostic.open_float, "[G]oto Diagnostic [L]oc")
+				map("K", function()
+					vim.lsp.buf.hover({ border = "rounded" })
+				end, "Hover Documentation")
 
-                -- Find references for the word under your cursor.
-                map("gr", require("telescope.builtin").lsp_references, "[G]oto [R]eferences")
+				local client = vim.lsp.get_client_by_id(event.data.client_id)
+				if client and client:supports_method(vim.lsp.protocol.Methods.textDocument_documentHighlight, event.buf) then
+					local highlight_augroup = vim.api.nvim_create_augroup("kickstart-lsp-highlight", { clear = false })
+					vim.api.nvim_create_autocmd({ "CursorHold", "CursorHoldI" }, {
+						buffer = event.buf,
+						group = highlight_augroup,
+						callback = vim.lsp.buf.document_highlight,
+					})
 
-                -- Jump to the implementation of the word under your cursor.
-                --  Useful when your language has ways of declaring types without an actual implementation.
-                map("gI", require("telescope.builtin").lsp_implementations, "[G]oto [I]mplementation")
+					vim.api.nvim_create_autocmd({ "CursorMoved", "CursorMovedI" }, {
+						buffer = event.buf,
+						group = highlight_augroup,
+						callback = vim.lsp.buf.clear_references,
+					})
 
-                -- Jump to the type of the word under your cursor.
-                --  Useful when you're not sure what type a variable is and you want to see
-                --  the definition of its *type*, not where it was *defined*.
-                map("<leader>D", require("telescope.builtin").lsp_type_definitions, "Type [D]efinition")
+					vim.api.nvim_create_autocmd("LspDetach", {
+						group = vim.api.nvim_create_augroup("kickstart-lsp-detach", { clear = true }),
+						callback = function(event2)
+							vim.lsp.buf.clear_references()
+							vim.api.nvim_clear_autocmds({ group = "kickstart-lsp-highlight", buffer = event2.buf })
+						end,
+					})
+				end
 
-                -- Fuzzy find all the symbols in your current document.
-                --  Symbols are things like variables, functions, types, etc.
-                map("<leader>ds", require("telescope.builtin").lsp_document_symbols, "[D]ocument [S]ymbols")
+				if client and client:supports_method(vim.lsp.protocol.Methods.textDocument_inlayHint, event.buf) then
+					map("<leader>th", function()
+						vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled({ bufnr = event.buf }), { bufnr = event.buf })
+					end, "[T]oggle Inlay [H]ints")
+				end
+			end,
+		})
 
-                -- Fuzzy find all the symbols in your current workspace.
-                --  Similar to document symbols, except searches over your entire project.
-                map("<leader>ws", require("telescope.builtin").lsp_dynamic_workspace_symbols, "[W]orkspace [S]ymbols")
+		-- Broadcast nvim-cmp and nvim-ufo folding capabilities to LSP servers
+		local capabilities = vim.lsp.protocol.make_client_capabilities()
+		capabilities = vim.tbl_deep_extend("force", capabilities, require("cmp_nvim_lsp").default_capabilities())
 
-                -- Rename the variable under your cursor.
-                --  Most Language Servers support renaming across files, etc.
-                map("<leader>rn", vim.lsp.buf.rename, "[R]e[n]ame")
+		capabilities.textDocument.foldingRange = {
+			dynamicRegistration = false,
+			lineFoldingOnly = true,
+		}
 
-                -- Execute a code action, usually your cursor needs to be on top of an error
-                -- or a suggestion from your LSP for this to activate.
-                --map("<leader>ca", vim.lsp.buf.code_action, "[C]ode [A]ction")
+		-- Resolve @vue/typescript-plugin path dynamically from vue-language-server (works on both NixOS and Mason/npm)
+		local vue_plugin_path = ""
+		local vue_bin = vim.fn.exepath("vue-language-server")
+		if vue_bin ~= "" then
+			local real_path = vim.uv.fs_realpath(vue_bin)
+			if real_path then
+				local package_root = real_path:match("(.*)/bin/")
+				if package_root then
+					local candidate_paths = {
+						package_root .. "/lib/language-tools/packages/typescript-plugin",
+						package_root .. "/lib/language-tools/packages/language-server",
+						package_root .. "/lib/packages/typescript-plugin",
+					}
+					for _, candidate in ipairs(candidate_paths) do
+						if vim.uv.fs_stat(candidate) then
+							vue_plugin_path = candidate
+							break
+						end
+					end
+				end
+			end
+		end
 
-                -- WARN: This is not Goto Definition, this is Goto Declaration.
-                --  For example, in C this would take you to the header.
-                map("gD", vim.lsp.buf.declaration, "[G]oto [D]eclaration")
+		local ts_plugins = {}
+		if vue_plugin_path ~= "" then
+			table.insert(ts_plugins, {
+				name = "@vue/typescript-plugin",
+				location = vue_plugin_path,
+				languages = { "vue" },
+			})
+		end
 
-                map("gl", vim.diagnostic.open_float, "[G]oto Diagnostic [L]oc")
-                -- The following two autocommands are used to highlight references of the
-                -- word under your cursor when your cursor rests there for a little while.
-                --    See `:help CursorHold` for information about when this is executed
-                --
-                -- When you move your cursor, the highlights will be cleared (the second autocommand).
-                local client = vim.lsp.get_client_by_id(event.data.client_id)
-                if client and client.supports_method(vim.lsp.protocol.Methods.textDocument_documentHighlight) then
-                    local highlight_augroup = vim.api.nvim_create_augroup("kickstart-lsp-highlight", { clear = false })
-                    vim.api.nvim_create_autocmd({ "CursorHold", "CursorHoldI" }, {
-                        buffer = event.buf,
-                        group = highlight_augroup,
-                        callback = vim.lsp.buf.document_highlight,
-                    })
+		local servers = {
+			vue_ls = {},
+			nil_ls = {
+				settings = {
+					["nil"] = {
+						formatting = {
+							command = { "nixfmt" },
+						},
+					},
+				},
+			},
+			bashls = {},
+			yamlls = {
+				filetypes = { "yaml" },
+			},
+			clangd = {
+				filetypes = { "c", "cpp", "objc", "objcpp", "cuda" },
+			},
+			sqls = {},
+			lua_ls = {
+				settings = {
+					Lua = {
+						completion = {
+							callSnippet = "Replace",
+						},
+					},
+				},
+			},
+			ts_ls = {
+				filetypes = { "typescript", "javascript", "javascriptreact", "typescriptreact", "vue" },
+				init_options = {
+					plugins = ts_plugins,
+				},
+				settings = {
+					typescript = {
+						inlayHints = {
+							includeInlayParameterNameHints = "all",
+							includeInlayParameterNameHintsWhenArgumentMatchesName = false,
+							includeInlayFunctionParameterTypeHints = true,
+							includeInlayVariableTypeHints = false,
+							includeInlayVariableTypeHintsWhenTypeMatchesName = false,
+							includeInlayPropertyDeclarationTypeHints = true,
+							includeInlayFunctionLikeReturnTypeHints = true,
+							includeInlayEnumMemberValueHints = true,
+						},
+					},
+					javascript = {
+						inlayHints = {
+							includeInlayParameterNameHints = "all",
+							includeInlayParameterNameHintsWhenArgumentMatchesName = false,
+							includeInlayFunctionParameterTypeHints = true,
+							includeInlayVariableTypeHints = false,
+							includeInlayVariableTypeHintsWhenTypeMatchesName = false,
+							includeInlayPropertyDeclarationTypeHints = true,
+							includeInlayFunctionLikeReturnTypeHints = true,
+							includeInlayEnumMemberValueHints = true,
+						},
+					},
+				},
+			},
+		}
 
-                    vim.api.nvim_create_autocmd({ "CursorMoved", "CursorMovedI" }, {
-                        buffer = event.buf,
-                        group = highlight_augroup,
-                        callback = vim.lsp.buf.clear_references,
-                    })
+		if not is_nixos() then
+			require("mason").setup()
 
-                    vim.api.nvim_create_autocmd("LspDetach", {
-                        group = vim.api.nvim_create_augroup("kickstart-lsp-detach", { clear = true }),
-                        callback = function(event2)
-                            vim.lsp.buf.clear_references()
-                            vim.api.nvim_clear_autocmds({ group = "kickstart-lsp-highlight", buffer = event2.buf })
-                        end,
-                    })
-                end
+			local ensure_installed = vim.tbl_keys(servers or {})
+			vim.list_extend(ensure_installed, {
+				"prettier", -- prettier formatter
+				"stylua", -- lua formatter
+				"eslint_d", -- ts/js linter
+			})
+			require("mason-tool-installer").setup({ ensure_installed = ensure_installed })
+			require("mason-lspconfig").setup({ automatic_enable = false })
+		end
 
-                -- The following code creates a keymap to toggle inlay hints in your
-                -- code, if the language server you are using supports them
-                --
-                -- This may be unwanted, since they displace some of your code
-                if client and client.supports_method(vim.lsp.protocol.Methods.textDocument_inlayHint) then
-                    map("<leader>th", function()
-                        vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled({ bufnr = event.buf }))
-                    end, "[T]oggle Inlay [H]ints")
-                end
-                vim.lsp.handlers["textDocument/signatureHelp"] = vim.lsp.with(vim.lsp.handlers.signature_help, {
-                    border = "rounded",
-                })
-            end,
-        })
+		-- Register and enable all configured servers using Neovim 0.12 native vim.lsp.config / vim.lsp.enable
+		for server_name, server_config in pairs(servers) do
+			local final_config = vim.tbl_deep_extend("force", {
+				capabilities = capabilities,
+			}, server_config or {})
 
-        -- LSP servers and clients are able to communicate to each other what features they support.
-        --  By default, Neovim doesn't support everything that is in the LSP specification.
-        --  When you add nvim-cmp, luasnip, etc. Neovim now has *more* capabilities.
-        --  So, we create new capabilities with nvim cmp, and then broadcast that to the servers.
-        local capabilities = vim.lsp.protocol.make_client_capabilities()
-        capabilities = vim.tbl_deep_extend("force", capabilities, require("cmp_nvim_lsp").default_capabilities())
-
-        capabilities.textDocument.foldingRange = {
-            dynamicRegistration = false,
-            lineFoldingOnly = true,
-        }
-
-        local vue_plugin_path = ""
-        local vue_bin = vim.fn.exepath("vue-language-server")
-        if vue_bin ~= "" then
-            -- Resolve the symlink to the actual Nix store path
-            local real_path = vim.uv.fs_realpath(vue_bin)
-            if real_path then
-                -- 1. Get the root of the package (remove /bin/vue-language-server)
-                local package_root = real_path:match("(.*)/bin/")
-
-                -- 2. Construct the path based on your specific tree output
-                -- Target: /nix/store/.../lib/packages/typescript-plugin
-                if package_root then
-                    vue_plugin_path = package_root .. "/lib/packages/typescript-plugin"
-                end
-            end
-        end
-
-        -- Enable the following language servers
-        --  Feel free to add/remove any LSPs that you want here. They will automatically be installed.
-        --
-        --  Add any additional override configuration in the following tables. Available keys are:
-        --  - cmd (table): Override the default command used to start the server
-        --  - filetypes (table): Override the default list of associated filetypes for the server
-        --  - capabilities (table): Override fields in capabilities. Can be used to disable certain LSP features.
-        --  - settings (table): Override the default settings passed when initializing the server.
-        --        For example, to see the options for `lua_ls`, you could go to: https://luals.github.io/wiki/settings/
-        local servers = {
-            -- clangd = {},
-            -- gopls = {},
-            -- pyright = {},
-            -- rust_analyzer = {},
-            -- ... etc. See `:help lspconfig-all` for a list of all the pre-configured LSPs
-            --
-            -- Some languages (like typescript) have entire language plugins that can be useful:
-            --    https://github.com/pmizio/typescript-tools.nvim
-            --
-            -- But for many setups, the LSP (`tsserver`) will work just fine
-            -- tsserver = {},
-            --
-            apex_ls = {
-                cmd = { "apex-language-server" },
-                filetypes = { "apex" },
-                root_dir = require('lspconfig').util.root_pattern("sfdx-project.json"),
-            },
-            volar = {},
-            nil_ls = {},
-            lua_ls = {
-                -- cmd = {...},
-                -- filetypes = { ...},
-                -- capabilities = {},
-                settings = {
-                    Lua = {
-                        completion = {
-                            callSnippet = "Replace",
-                        },
-                        -- You can toggle below to ignore Lua_LS's noisy `missing-fields` warnings
-                        -- diagnostics = { disable = { 'missing-fields' } },
-                    },
-                },
-            },
-            ts_ls = {
-                filetypes = { "typescript", "javascript", "javascriptreact", "typescriptreact", "vue" },
-                init_options = {
-                    plugins = {
-                        {
-                            name = "@vue/typescript-plugin",
-                            location = vue_plugin_path,
-                            languages = { "vue" },
-                        },
-                    },
-                },
-                settings = {
-                    typescript = {
-                        inlayHints = {
-                            includeInlayParameterNameHints = "all",
-                            includeInlayParameterNameHintsWhenArgumentMatchesName = false,
-                            includeInlayFunctionParameterTypeHints = true,
-                            includeInlayVariableTypeHints = false,
-                            includeInlayVariableTypeHintsWhenTypeMatchesName = false,
-                            includeInlayPropertyDeclarationTypeHints = true,
-                            includeInlayFunctionLikeReturnTypeHints = true,
-                            includeInlayEnumMemberValueHints = true,
-                        },
-                    },
-                    javascript = {
-                        inlayHints = {
-                            includeInlayParameterNameHints = "all",
-                            includeInlayParameterNameHintsWhenArgumentMatchesName = false,
-                            includeInlayFunctionParameterTypeHints = true,
-                            includeInlayVariableTypeHints = false,
-                            includeInlayVariableTypeHintsWhenTypeMatchesName = false,
-                            includeInlayPropertyDeclarationTypeHints = true,
-                            includeInlayFunctionLikeReturnTypeHints = true,
-                            includeInlayEnumMemberValueHints = true,
-                        },
-                    },
-                },
-            },
-        }
-
-        local function is_nixos()
-            -- A reliable way to check for NixOS is the presence of '/etc/nixos'
-            return vim.fn.isdirectory("/etc/nixos") == 1
-        end
-
-        if is_nixos() then
-            -- 1. Register the configurations
-            for server_name, server_config in pairs(servers) do
-                local final_config = vim.tbl_deep_extend("force", {
-                    capabilities = capabilities,
-                }, server_config or {})
-
-                vim.lsp.config(server_name, final_config)
-                if server_name ~= 'apex_ls' then
-                    vim.lsp.enable(server_name)
-                end
-            end
-
-            -- 2. Create the Trigger (The missing piece)
-            vim.api.nvim_create_autocmd('FileType', {
-                pattern = 'apex',
-                callback = function(args)
-                    -- This actually launches the server for the buffer
-                    vim.lsp.start({
-                        name = 'apex_ls',
-                        cmd = servers.apex_ls.cmd,
-                        root_dir = servers.apex_ls.root_dir(args.file)
-                    })
-                end,
-            })
-            -- (Note: You'd need a loop to do this generic for all servers)
-
-            -- if is_nixos() then
-            --     -- **NixOS Path**: LSPs are installed via home-manager and are in the PATH.
-            --     -- We will configure lspconfig directly and skip Mason for installation.
-            --
-            --     for server_name, server_config in pairs(servers) do
-            --         -- Combine the global capabilities with any server-specific settings
-            --         local final_config = vim.tbl_deep_extend("force", {
-            --             capabilities = capabilities,
-            --         }, server_config or {})
-            --
-            --         -- require("lspconfig")[server_name].setup(final_config)
-            --         vim.lsp.config(server_name, final_config)
-            --         vim.lsp.enable(server_name)
-            --     end
-        else
-            -- Ensure the servers and tools above are installed
-            --  To check the current status of installed tools and/or manually install
-            --  other tools, you can run
-            --    :Mason
-            --
-            --  You can press `g?` for help in this menu.
-            require("mason").setup()
-
-            -- You can add other tools here that you want Mason to install
-            -- for you, so that they are available from within Neovim.
-            local ensure_installed = vim.tbl_keys(servers or {})
-            vim.list_extend(ensure_installed, {
-                "prettier", -- prettier formatter
-                "stylua",   -- lua formatter
-                "eslint_d", -- ts/js linter
-            })
-            require("mason-tool-installer").setup({ ensure_installed = ensure_installed })
-
-            require("mason-lspconfig").setup({
-                handlers = {
-                    function(server_name)
-                        print("server name pre " .. server_name)
-                        if server_name == "tsserver" then
-                            server_name = "ts_ls"
-                        end
-                        print("server name post " .. server_name)
-
-                        local server = servers[server_name] or {}
-                        -- This handles overriding only values explicitly passed
-                        -- by the server configuration above. Useful when disabling
-                        -- certain features of an LSP (for example, turning off formatting for tsserver)
-                        server.capabilities = vim.tbl_deep_extend("force", {}, capabilities, server.capabilities or {})
-                        require("lspconfig")[server_name].setup(server)
-                    end,
-                },
-            })
-        end
-    end,
+			vim.lsp.config(server_name, final_config)
+			vim.lsp.enable(server_name)
+		end
+	end,
 }
