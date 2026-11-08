@@ -124,8 +124,28 @@ return {
 				name = "@vue/typescript-plugin",
 				location = vue_plugin_path,
 				languages = { "vue" },
+				configNamespace = "typescript",
 			})
 		end
+
+		-- Dynamically scale tsserver max memory based on system RAM (10 GB threshold)
+		local total_mem_gb = (vim.uv.get_total_memory() or 0) / (1024 * 1024 * 1024)
+		local ts_max_memory = total_mem_gb <= 10 and 1536 or 4096
+
+		local inlay_hints = {
+			parameterNames = {
+				enabled = "all",
+				suppressWhenArgumentMatchesName = false,
+			},
+			parameterTypes = { enabled = true },
+			variableTypes = {
+				enabled = false,
+				suppressWhenTypeMatchesName = false,
+			},
+			propertyDeclarationTypes = { enabled = true },
+			functionLikeReturnTypes = { enabled = true },
+			enumMemberValues = { enabled = true },
+		}
 
 		local servers = {
 			vue_ls = {},
@@ -155,35 +175,32 @@ return {
 					},
 				},
 			},
-			ts_ls = {
+			vtsls = {
 				filetypes = { "typescript", "javascript", "javascriptreact", "typescriptreact", "vue" },
-				init_options = {
-					plugins = ts_plugins,
-				},
 				settings = {
-					typescript = {
-						inlayHints = {
-							includeInlayParameterNameHints = "all",
-							includeInlayParameterNameHintsWhenArgumentMatchesName = false,
-							includeInlayFunctionParameterTypeHints = true,
-							includeInlayVariableTypeHints = false,
-							includeInlayVariableTypeHintsWhenTypeMatchesName = false,
-							includeInlayPropertyDeclarationTypeHints = true,
-							includeInlayFunctionLikeReturnTypeHints = true,
-							includeInlayEnumMemberValueHints = true,
+					vtsls = {
+						autoUseWorkspaceTsdk = true,
+						experimental = {
+							completion = {
+								enableServerSideFuzzyMatch = true,
+								entriesLimit = 50,
+							},
+						},
+						tsserver = {
+							globalPlugins = ts_plugins,
 						},
 					},
-					javascript = {
-						inlayHints = {
-							includeInlayParameterNameHints = "all",
-							includeInlayParameterNameHintsWhenArgumentMatchesName = false,
-							includeInlayFunctionParameterTypeHints = true,
-							includeInlayVariableTypeHints = false,
-							includeInlayVariableTypeHintsWhenTypeMatchesName = false,
-							includeInlayPropertyDeclarationTypeHints = true,
-							includeInlayFunctionLikeReturnTypeHints = true,
-							includeInlayEnumMemberValueHints = true,
+					typescript = {
+						tsserver = {
+							maxTsServerMemory = ts_max_memory,
 						},
+						inlayHints = inlay_hints,
+					},
+					javascript = {
+						tsserver = {
+							maxTsServerMemory = ts_max_memory,
+						},
+						inlayHints = inlay_hints,
 					},
 				},
 			},
